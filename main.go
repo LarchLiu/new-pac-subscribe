@@ -51,9 +51,8 @@ func fetchVmess() string {
 	vmess := ""
 
 	doc.Find("p").Each(func(i int, s *goquery.Selection) {
-		vmessReg := regexp.MustCompile(`vmess://(.*?)$`)
-		vlessReg := regexp.MustCompile(`vless://(.*?)$`)
-		if vmessReg.MatchString(s.Text()) || vlessReg.MatchString(s.Text()) {
+		vmessReg := regexp.MustCompile(`(vmess|vless)://(.*?)$`)
+		if vmessReg.MatchString(s.Text()) {
 			vmess += s.Text() + "\n"
 		}
 	})
