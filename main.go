@@ -70,5 +70,10 @@ func main() {
 	fileName := "m5ldCI6ICJ3cyIsDQogICJ0eXBlI"
 	encoded := []byte(base64.StdEncoding.EncodeToString(vmess))
 	utils.WriteJSONFile(vmessDir, fileName, encoded)
-	uploadVmess("qiniu", vmessDir+fileName, fileName)
+	url, err := uploadVmess("qiniu", vmessDir+fileName, fileName)
+	if err != nil {
+		fmt.Println(err)
+	}
+	urls := []string{url}
+	model.QiniuPrefetchUrls(urls)
 }

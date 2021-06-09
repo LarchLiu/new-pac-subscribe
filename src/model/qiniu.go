@@ -6,8 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/qiniu/api.v7/v7/auth/qbox"
-	"github.com/qiniu/api.v7/v7/storage"
+	"github.com/qiniu/go-sdk/v7/auth"
+	"github.com/qiniu/go-sdk/v7/cdn"
+	"github.com/qiniu/go-sdk/v7/storage"
 	"github.com/qiniu/x/rpc"
 )
 
@@ -35,7 +36,7 @@ func QiniuGetResourcePrefix() string {
 
 // QiniuUpload qiniu api to upload file.
 func QiniuUpload(filePath string, key string) (ret QiniuRet, err error) {
-	mac := qbox.NewMac(accessKey, secretKey)
+	mac := auth.New(accessKey, secretKey)
 	putPolicy := storage.PutPolicy{
 		Scope:      fmt.Sprintf("%s:%s", bucket, key),
 		InsertOnly: 0,
@@ -54,9 +55,39 @@ func QiniuUpload(filePath string, key string) (ret QiniuRet, err error) {
 	return ret, nil
 }
 
+// QiniuPrefetchUrls .
+func QiniuPrefetchUrls(urls []string) {
+	mac := auth.New(accessKey, secretKey)
+	cdnManager := cdn.NewCdnManager(mac)
+
+	// 预取链接，单次请求链接不可以超过100个，如果超过，请分批发送请求
+	ret, err := cdnManager.PrefetchUrls(urls)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(ret.Code)
+	fmt.Println(ret.RequestID)
+}
+
+// QiniuRefreshUrls .
+func QiniuRefreshUrls(urls []string) {
+	mac := auth.New(accessKey, secretKey)
+	cdnManager := cdn.NewCdnManager(mac)
+
+	// 刷新链接，单次请求链接不可以超过100个，如果超过，请分批发送请求
+	ret, err := cdnManager.RefreshUrls(urls)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(ret.Code)
+	fmt.Println(ret.RequestID)
+}
+
 // QiniuCheckFile check if file Exist on qiniu.
 func QiniuCheckFile(key string) (isExist bool, ret QiniuRet) {
-	mac := qbox.NewMac(accessKey, secretKey)
+	mac := auth.New(accessKey, secretKey)
 	cfg := storage.Config{}
 	bucketManager := storage.NewBucketManager(mac, &cfg)
 	_, sErr := bucketManager.Stat(bucket, key)
@@ -75,7 +106,7 @@ func QiniuMakeURL(key string) string {
 
 // QiniuRemoveJSONFile delete json file for update
 func QiniuRemoveJSONFile() {
-	mac := qbox.NewMac(accessKey, secretKey)
+	mac := auth.New(accessKey, secretKey)
 	cfg := storage.Config{}
 	bucketManager := storage.NewBucketManager(mac, &cfg)
 	limit := 1000
