@@ -74,6 +74,6 @@ func main() {
 		fmt.Println(err)
 	}
 	urls := []string{url}
-	model.QiniuPrefetchUrls(urls)
 	model.QiniuRefreshUrls(urls)
+	model.QiniuPrefetchUrls(urls)
 }
