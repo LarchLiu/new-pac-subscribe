@@ -75,4 +75,5 @@ func main() {
 	}
 	urls := []string{url}
 	model.QiniuPrefetchUrls(urls)
+	model.QiniuRefreshUrls(urls)
 }
